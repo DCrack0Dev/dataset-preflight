@@ -23,7 +23,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install coverage tool
-        run: python -m pip install --disable-pip-version-check 'coverage>=7.6,<8'
+        run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Lint source and tests
+        run: ruff check src tests
       - name: Run tests
         run: python -m unittest discover -s tests -v
       - name: Enforce coverage gate

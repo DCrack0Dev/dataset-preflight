@@ -65,7 +65,7 @@ class PreflightHTTPServer(ThreadingHTTPServer):
 class PreflightRequestHandler(BaseHTTPRequestHandler):
     server: PreflightHTTPServer
 
-    def do_GET(self) -> None:  # noqa: N802 - stdlib handler API
+    def do_GET(self) -> None:
         if self.path == "/health/live":
             self._send_json(HTTPStatus.OK, {"status": "ok"})
         elif self.path == "/health/ready":
@@ -75,7 +75,7 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         else:
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "NOT_FOUND"})
 
-    def do_POST(self) -> None:  # noqa: N802 - stdlib handler API
+    def do_POST(self) -> None:
         self.server.metrics.record_request()
         if self.path != "/v1/validate":
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "NOT_FOUND"})
@@ -105,7 +105,7 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         raw = self.rfile.read(int(content_length))
         payload = json.loads(raw)
         if not isinstance(payload, dict):
-            raise ValueError("request body must be a JSON object")
+            raise TypeError("request body must be a JSON object")
         return payload
 
     def _send_json(self, status: HTTPStatus, payload: dict[str, Any]) -> None:

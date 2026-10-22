@@ -9,7 +9,6 @@ from urllib.request import Request, urlopen
 
 from dataset_preflight.service import create_server
 
-
 CONTRACT = {
     "name": "orders",
     "version": 1,

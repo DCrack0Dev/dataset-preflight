@@ -55,6 +55,8 @@ make check
 
 The test suite includes CLI/domain coverage and HTTP integration tests. CI runs the suite across Python 3.11, 3.12, and 3.13, compiles the package, validates the example dataset, and enforces an 85% line-coverage threshold.
 
+Developer tools are pinned in `requirements-dev.txt`. `make check` runs Ruff, the tests, and compilation; CI runs the same lint command before the coverage gate.
+
 ## Security and limits
 
 Dataset Preflight reads local files only and does not execute formulas or interpret cell contents. It is intentionally CSV-focused: it does not claim to validate encodings beyond Python's CSV reader, infer a schema, or replace business-level reconciliation. Keep contracts under code review and treat validation reports as potentially sensitive because they can include source values.

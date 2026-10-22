@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import json
 import contextlib
 import io
+import json
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,7 +11,6 @@ from dataset_preflight.cli import main
 from dataset_preflight.contract import ContractError, parse_contract
 from dataset_preflight.diff import compare_contracts
 from dataset_preflight.validator import CsvReadError, validate_csv
-
 
 CONTRACT = {
     "name": "orders",
