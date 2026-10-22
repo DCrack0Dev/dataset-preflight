@@ -7,6 +7,7 @@
 - Added a production-only branch coverage report with an 85% CI gate.
 - Added malformed-input tests and expanded contract/type/CLI tests.
 - Added pinned Ruff and coverage tooling with a CI cleanliness gate.
+- Added HTTP API documentation, end-to-end CLI checks, Dependabot, CODEOWNERS, and pinned dependency auditing.
 
 ## 0.1.0 - 2026-10-22
 

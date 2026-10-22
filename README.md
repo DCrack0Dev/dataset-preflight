@@ -43,7 +43,7 @@ A contract is deliberately plain JSON:
 }
 ```
 
-See [docs/contract.md](docs/contract.md) for the full contract format and [docs/architecture.md](docs/architecture.md) for module boundaries.
+See [docs/contract.md](docs/contract.md) for the full contract format, [docs/http-api.md](docs/http-api.md) for the service contract, and [docs/architecture.md](docs/architecture.md) for module boundaries.
 
 ## Development
 
@@ -55,7 +55,7 @@ make check
 
 The test suite includes CLI/domain coverage and HTTP integration tests. CI runs the suite across Python 3.11, 3.12, and 3.13, compiles the package, validates the example dataset, and enforces an 85% line-coverage threshold.
 
-Developer tools are pinned in `requirements-dev.txt`. `make check` runs Ruff, the tests, and compilation; CI runs the same lint command before the coverage gate.
+Developer tools are pinned in `requirements-dev.txt`. `make check` runs Ruff, the tests, and compilation; CI runs the same lint command, dependency audit, container build, and coverage gate.
 
 ## Security and limits
 
