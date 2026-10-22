@@ -1,0 +1,12 @@
+{
+  "name": "orders",
+  "version": 1,
+  "allow_extra_columns": false,
+  "columns": [
+    {"name": "order_id", "type": "string", "nullable": false, "unique": true},
+    {"name": "customer_id", "type": "string", "nullable": false},
+    {"name": "amount", "type": "number", "nullable": false, "min": 0},
+    {"name": "status", "type": "string", "nullable": false, "allowed": ["paid", "refunded"]},
+    {"name": "ordered_on", "type": "date", "nullable": false}
+  ]
+}
