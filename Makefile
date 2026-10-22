@@ -1,4 +1,4 @@
-.PHONY: test compile check example
+.PHONY: test compile coverage check example
 
 PYTHON ?= python3
 
@@ -7,6 +7,10 @@ test:
 
 compile:
 	PYTHONPATH=src $(PYTHON) -m compileall -q src tests
+
+coverage:
+	coverage run --branch -m unittest discover -s tests
+	coverage report --fail-under=85
 
 check: test compile
 

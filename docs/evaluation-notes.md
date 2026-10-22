@@ -10,6 +10,8 @@ The project was shaped around signals that are visible in current public reposit
 
 Those signals led to a standard-library runtime, explicit immutable contracts, stable issue codes, meaningful exit codes, focused tests, examples, architecture and contract documentation, a clean-checkout workflow, and a multi-version CI matrix. These choices improve inspectability but do not imply a Data Factory score.
 
+The repository was subsequently strengthened with a dependency-free HTTP integration surface, liveness/readiness probes, Prometheus-style counters, a non-root container, read-only Compose configuration with ephemeral temporary storage, a Dev Container, malformed-input tests, and a production-only 85% branch-coverage gate. These are project-appropriate equivalents of the operational signals observed in the comparison repository; they are not copied workflow behavior.
+
 ## Sources
 
 1. [GitHub ReviewBench announcement](https://github.blog/ai-and-ml/github-copilot/reviewbench-an-open-benchmark-for-ai-code-review/)

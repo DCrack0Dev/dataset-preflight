@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0 - 2026-10-22
+
+- Added a local HTTP validation service with liveness, readiness, metrics, request limits, and integration tests.
+- Added a non-root Docker image, read-only Compose deployment, writable ephemeral `/tmp`, and Dev Container setup.
+- Added a production-only branch coverage report with an 85% CI gate.
+- Added malformed CSV hardening and expanded contract/type/CLI tests.
+
 ## 0.1.0 - 2026-10-22
 
 - Added contract-driven CSV validation for schema, types, nullability, uniqueness, allowed values, and numeric bounds.

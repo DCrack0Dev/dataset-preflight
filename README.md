@@ -11,6 +11,7 @@ It is designed for analysts and data engineers who need a fast, reviewable gate 
 - Compare two contract files to review additions, removals, and incompatible changes before deployment.
 - Export the validation result as JSON for CI annotations or downstream tooling.
 - Fail a pipeline with exit code `1` when the dataset violates its contract and `2` for invalid inputs or contracts.
+- Run the same validator behind a local HTTP endpoint with health probes and Prometheus-style metrics.
 
 ## Quick start
 
@@ -20,7 +21,12 @@ Requires Python 3.11 or later.
 PYTHONPATH=src python -m dataset_preflight validate examples/orders.csv examples/orders.contract.json
 PYTHONPATH=src python -m dataset_preflight validate examples/orders.csv examples/orders.contract.json --format json > report.json
 PYTHONPATH=src python -m dataset_preflight diff examples/orders.contract.json examples/orders.v2.contract.json
+PYTHONPATH=src python -m dataset_preflight serve --port 8080
 ```
+
+The HTTP service accepts `POST /v1/validate` with a JSON body containing `csv` and `contract`. It returns `200` for valid data, `422` for contract findings, and `400` for malformed requests. `GET /health/live` and `GET /health/ready` provide liveness and readiness probes; `GET /metrics` exposes request counters. Raw request CSV is validated through a temporary file and is not persisted by the service.
+
+For isolated local execution, use `docker compose up --build`. The container runs as an unprivileged user with a read-only filesystem and includes a readiness health check. A reproducible Python Dev Container is also included.
 
 A contract is deliberately plain JSON:
 
@@ -44,9 +50,10 @@ See [docs/contract.md](docs/contract.md) for the full contract format and [docs/
 The implementation uses only the Python standard library at runtime. The test suite uses `unittest`, so the core checks work in an offline environment.
 
 ```bash
-python -m unittest discover -s tests -v
-python -m compileall -q src tests
+make check
 ```
+
+The test suite includes CLI/domain coverage and HTTP integration tests. CI runs the suite across Python 3.11, 3.12, and 3.13, compiles the package, validates the example dataset, and enforces an 85% line-coverage threshold.
 
 ## Security and limits
 
