@@ -32,5 +32,12 @@ jobs:
         run: python -m compileall -q src tests
       - name: Validate example dataset
         run: python -m dataset_preflight validate examples/orders.csv examples/orders.contract.json
+
+  container:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build runtime image
+        run: docker build --tag dataset-preflight:ci .
         env:
           PYTHONPATH: src
