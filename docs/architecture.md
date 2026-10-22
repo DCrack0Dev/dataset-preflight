@@ -12,3 +12,5 @@ The package keeps pure contract parsing, validation, reporting, and CLI orchestr
 The standard library is sufficient at runtime. This keeps the validation gate portable and avoids a network or service dependency in CI. Tests use temporary files and deterministic fixtures so they exercise the public behavior without relying on the user's filesystem.
 
 The Docker image and Compose definition are deployment wrappers, not alternate application logic. The image runs as an unprivileged user, exposes port 8080, and has an unauthenticated readiness endpoint suitable for container health checks. The service is intentionally stateless; durable reports belong in the caller's pipeline storage.
+
+Development tools are represented in both the human-readable requirements file and the hash-resolved `uv.lock`. Operations artifact tests check the security-relevant container invariants (non-root execution, read-only Compose filesystem, and ephemeral temporary storage) so those deployment assumptions cannot silently drift.

@@ -8,6 +8,9 @@ test:
 lint:
 	ruff check src tests
 
+lock:
+	uv lock --check
+
 compile:
 	PYTHONPATH=src $(PYTHON) -m compileall -q src tests
 
@@ -15,7 +18,7 @@ coverage:
 	coverage run --branch -m unittest discover -s tests
 	coverage report --fail-under=85
 
-check: lint test compile
+check: lock lint test compile
 
 example:
 	PYTHONPATH=src $(PYTHON) -m dataset_preflight validate examples/orders.csv examples/orders.contract.json

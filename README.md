@@ -55,7 +55,7 @@ make check
 
 The test suite includes CLI/domain coverage and HTTP integration tests. CI runs the suite across Python 3.11, 3.12, and 3.13, compiles the package, validates the example dataset, and enforces an 85% line-coverage threshold.
 
-Developer tools are pinned in `requirements-dev.txt`. `make check` runs Ruff, the tests, and compilation; CI runs the same lint command, dependency audit, container build, and coverage gate.
+Developer tools are pinned in `requirements-dev.txt` and resolved in `uv.lock`. `make check` runs Ruff, the tests, and compilation; CI verifies the lockfile, runs the same lint command, audits dependencies, builds the container, and enforces the coverage gate. A scheduled security workflow runs secret scanning and reviews dependency changes on pull requests.
 
 ## Security and limits
 
