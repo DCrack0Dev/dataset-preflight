@@ -8,7 +8,7 @@ from pathlib import Path
 from dataset_preflight.cli import main
 from dataset_preflight.contract import ContractError, parse_contract
 from dataset_preflight.diff import compare_contracts
-from dataset_preflight.validator import validate_csv
+from dataset_preflight.validator import CsvReadError, validate_csv
 
 
 CONTRACT = {
@@ -31,6 +31,20 @@ class ContractTests(unittest.TestCase):
 
 
 class ValidationTests(unittest.TestCase):
+    def test_rejects_duplicate_headers(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "duplicate.csv"
+            path.write_text("id,id\nA,B\n", encoding="utf-8")
+            with self.assertRaisesRegex(CsvReadError, "duplicate"):
+                validate_csv(path, parse_contract(CONTRACT))
+
+    def test_reports_rows_with_more_fields_than_the_header(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "wide.csv"
+            path.write_text("id,amount,status\nA,2,paid,unexpected\n", encoding="utf-8")
+            report = validate_csv(path, parse_contract(CONTRACT))
+        self.assertEqual([issue.code for issue in report.issues], ["MALFORMED_ROW"])
+
     def test_reports_schema_and_row_violations(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "orders.csv"

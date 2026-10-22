@@ -28,6 +28,8 @@ def validate_csv(path: Path, contract: DatasetContract) -> ValidationReport:
         if headers is None or any(header is None or not header.strip() for header in headers):
             raise CsvReadError("CSV must have a non-empty header row")
         headers = [header.strip() for header in headers]
+        if len(headers) != len(set(headers)):
+            raise CsvReadError("CSV header contains duplicate column names")
         expected = set(contract.column_names)
         actual = set(headers)
         for name in sorted(expected - actual):
@@ -40,6 +42,8 @@ def validate_csv(path: Path, contract: DatasetContract) -> ValidationReport:
         rows = 0
         for row_number, row in enumerate(reader, start=2):
             rows += 1
+            if None in row:
+                issues.append(Issue("MALFORMED_ROW", "row contains more fields than the header", row_number))
             for column in contract.columns:
                 if column.name not in actual:
                     continue
