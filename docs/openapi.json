@@ -1,0 +1,23 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Dataset Preflight API",
+    "version": "0.2.0",
+    "description": "Validate CSV content against an explicit JSON data contract."
+  },
+  "paths": {
+    "/v1/validate": {
+      "post": {
+        "summary": "Validate CSV content",
+        "responses": {
+          "200": {"description": "Dataset passed validation"},
+          "400": {"description": "Malformed request or contract"},
+          "422": {"description": "Dataset contains contract findings"}
+        }
+      }
+    },
+    "/health/live": {"get": {"summary": "Liveness probe"}},
+    "/health/ready": {"get": {"summary": "Readiness probe"}},
+    "/metrics": {"get": {"summary": "Prometheus-style metrics"}}
+  }
+}

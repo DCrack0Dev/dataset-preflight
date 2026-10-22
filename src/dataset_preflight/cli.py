@@ -26,6 +26,7 @@ def build_parser() -> argparse.ArgumentParser:
     http = subparsers.add_parser("serve", help="start the local HTTP validation service")
     http.add_argument("--host", default="0.0.0.0")
     http.add_argument("--port", type=int, default=8080)
+    http.add_argument("--audit-log", type=Path, help="append metadata-only events to this JSONL file")
     return parser
 
 
@@ -33,7 +34,7 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         if args.command == "serve":
-            serve(args.host, args.port)
+            serve(args.host, args.port, args.audit_log)
             return 0
         if args.command == "validate":
             report = validate_csv(args.csv, load_contract(args.contract))

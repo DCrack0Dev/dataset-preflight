@@ -11,6 +11,7 @@ from pathlib import Path
 from threading import Lock
 from typing import Any
 
+from .audit import AuditLog
 from .contract import ContractError, parse_contract
 from .validator import CsvReadError, validate_csv
 
@@ -57,9 +58,10 @@ class PreflightHTTPServer(ThreadingHTTPServer):
 
     daemon_threads = True
 
-    def __init__(self, address: tuple[str, int]) -> None:
+    def __init__(self, address: tuple[str, int], audit_path: Path | None = None) -> None:
         super().__init__(address, PreflightRequestHandler)
         self.metrics = Metrics()
+        self.audit = AuditLog(audit_path)
 
 
 class PreflightRequestHandler(BaseHTTPRequestHandler):
@@ -72,6 +74,8 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
             self._send_json(HTTPStatus.OK, {"status": "ready"})
         elif self.path == "/metrics":
             self._send_text(HTTPStatus.OK, self.server.metrics.render())
+        elif self.path == "/openapi.json":
+            self._send_json(HTTPStatus.OK, _openapi_document())
         else:
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "NOT_FOUND"})
 
@@ -91,9 +95,11 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
                 csv_file.flush()
                 report = replace(validate_csv(Path(csv_file.name), contract), source="<request>")
             self.server.metrics.record_validation(report.valid)
+            self.server.audit.record("validation", valid=report.valid, issues=len(report.issues), rows=report.rows)
             self._send_json(HTTPStatus.OK if report.valid else HTTPStatus.UNPROCESSABLE_ENTITY, report.as_dict())
         except (ContractError, CsvReadError, ValueError, json.JSONDecodeError) as exc:
             self.server.metrics.record_invalid_request()
+            self.server.audit.record("invalid_request", error=str(exc))
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "INVALID_REQUEST", "message": str(exc)})
 
     def _read_json(self) -> dict[str, Any]:
@@ -112,6 +118,8 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         body = json.dumps(payload, sort_keys=True).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -120,6 +128,8 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         encoded = body.encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "text/plain; version=0.0.4")
+        self.send_header("X-Content-Type-Options", "nosniff")
+        self.send_header("Cache-Control", "no-store")
         self.send_header("Content-Length", str(len(encoded)))
         self.end_headers()
         self.wfile.write(encoded)
@@ -128,15 +138,28 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         return
 
 
-def create_server(host: str = "127.0.0.1", port: int = 8080) -> PreflightHTTPServer:
-    return PreflightHTTPServer((host, port))
+def create_server(host: str = "127.0.0.1", port: int = 8080, audit_path: Path | None = None) -> PreflightHTTPServer:
+    return PreflightHTTPServer((host, port), audit_path)
 
 
-def serve(host: str = "0.0.0.0", port: int = 8080) -> None:
-    server = create_server(host, port)
+def serve(host: str = "0.0.0.0", port: int = 8080, audit_path: Path | None = None) -> None:
+    server = create_server(host, port, audit_path)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
         pass
     finally:
         server.server_close()
+
+
+def _openapi_document() -> dict[str, Any]:
+    return {
+        "openapi": "3.0.3",
+        "info": {"title": "Dataset Preflight API", "version": "0.2.0"},
+        "paths": {
+            "/v1/validate": {"post": {"summary": "Validate CSV content"}},
+            "/health/live": {"get": {"summary": "Liveness probe"}},
+            "/health/ready": {"get": {"summary": "Readiness probe"}},
+            "/metrics": {"get": {"summary": "Prometheus-style metrics"}},
+        },
+    }

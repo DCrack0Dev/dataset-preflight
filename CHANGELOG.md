@@ -8,6 +8,7 @@
 - Added malformed-input tests and expanded contract/type/CLI tests.
 - Added pinned Ruff and coverage tooling with a CI cleanliness gate.
 - Added HTTP API documentation, end-to-end CLI checks, Dependabot, CODEOWNERS, and pinned dependency auditing.
+- Added optional metadata-only audit logging, an OpenAPI endpoint, and no-store security response headers.
 
 ## 0.1.0 - 2026-10-22
 

@@ -24,7 +24,7 @@ PYTHONPATH=src python -m dataset_preflight diff examples/orders.contract.json ex
 PYTHONPATH=src python -m dataset_preflight serve --port 8080
 ```
 
-The HTTP service accepts `POST /v1/validate` with a JSON body containing `csv` and `contract`. It returns `200` for valid data, `422` for contract findings, and `400` for malformed requests. `GET /health/live` and `GET /health/ready` provide liveness and readiness probes; `GET /metrics` exposes request counters. Raw request CSV is validated through a temporary file and is not persisted by the service.
+The HTTP service accepts `POST /v1/validate` with a JSON body containing `csv` and `contract`. It returns `200` for valid data, `422` for contract findings, and `400` for malformed requests. `GET /health/live` and `GET /health/ready` provide liveness and readiness probes; `GET /metrics` exposes request counters; and `GET /openapi.json` describes the service surface. Raw request CSV is validated through a temporary file and is not persisted by the service. Pass `--audit-log path.jsonl` to record metadata-only validation outcomes.
 
 For isolated local execution, use `docker compose up --build`. The container runs as an unprivileged user with a read-only filesystem and includes a readiness health check. A reproducible Python Dev Container is also included.
 
