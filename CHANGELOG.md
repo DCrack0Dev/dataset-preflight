@@ -13,6 +13,7 @@
 - Added mypy static type checking and scheduled CodeQL analysis for Python and GitHub Actions.
 - Added a provider-locked Terraform Docker module with format, init, validate, and plan checks in CI.
 - Added a complete configuration reference covering runtime flags, Terraform inputs, Docker provider variables, and CI-only variables.
+- Added Pydantic request-envelope validation, standard logging, optional Sentry integration, Ruff formatting enforcement, Checkov scanning, and an ephemeral Terraform deployment smoke test.
 
 ## 0.1.0 - 2026-10-22
 

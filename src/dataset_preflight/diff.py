@@ -32,13 +32,21 @@ def compare_contracts(before: DatasetContract, after: DatasetContract) -> tuple[
         if left.nullable and not right.nullable:
             compatibility_changes.append(Change("breaking", name, "column is now non-nullable"))
         if left.unique != right.unique:
-            compatibility_changes.append(Change("constraint", name, f"unique changed from {left.unique} to {right.unique}"))
+            compatibility_changes.append(
+                Change("constraint", name, f"unique changed from {left.unique} to {right.unique}")
+            )
         if left.allowed != right.allowed:
             compatibility_changes.append(Change("constraint", name, "allowed values changed"))
         if left.minimum != right.minimum or left.maximum != right.maximum:
             compatibility_changes.append(Change("constraint", name, "numeric bounds changed"))
     if before.allow_extra_columns != after.allow_extra_columns:
-        compatibility_changes.append(Change("constraint", "*", f"allow_extra_columns changed from {before.allow_extra_columns} to {after.allow_extra_columns}"))
+        compatibility_changes.append(
+            Change(
+                "constraint",
+                "*",
+                f"allow_extra_columns changed from {before.allow_extra_columns} to {after.allow_extra_columns}",
+            )
+        )
     changes.extend(sorted(compatibility_changes, key=lambda change: (change.kind != "breaking", change.column)))
     changes.extend(additions)
     changes.extend(removals)

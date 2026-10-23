@@ -20,6 +20,19 @@ Use these CLI flags instead of environment variables:
 
 The Dockerfile sets `PYTHONPATH=/app/src` internally so the `src` layout is importable. This is an implementation detail, not an application setting, and should not be changed for normal deployments.
 
+The service uses Python's standard `logging` framework. Set `DATASET_PREFLIGHT_LOG_LEVEL` to a standard level such as `DEBUG`, `INFO`, `WARNING`, or `ERROR`; the default is `INFO`.
+
+Optional Sentry error tracking is available through the `observability` extra. It is disabled unless `SENTRY_DSN` is set. When enabled, `SENTRY_ENVIRONMENT` defaults to `local` and `SENTRY_TRACES_SAMPLE_RATE` defaults to `0`:
+
+```bash
+pip install 'dataset-preflight[observability]'
+export SENTRY_DSN='https://example.invalid/project'
+export SENTRY_ENVIRONMENT=staging
+export SENTRY_TRACES_SAMPLE_RATE=0.1
+```
+
+Do not commit DSNs or other credentials. The service remains fully functional with the extra absent and no Sentry variables configured.
+
 ## Terraform inputs
 
 The Docker Terraform module uses typed Terraform variables rather than runtime environment variables:

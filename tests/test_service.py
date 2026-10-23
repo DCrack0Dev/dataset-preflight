@@ -94,6 +94,15 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(status, HTTPStatus.BAD_REQUEST)
         self.assertEqual(response["error"], "INVALID_REQUEST")
 
+    def test_returns_bad_request_for_unknown_request_fields(self) -> None:
+        status, response = self.request(
+            "POST",
+            "/v1/validate",
+            {"csv": "id,amount\nA,1\n", "contract": CONTRACT, "unexpected": True},
+        )
+        self.assertEqual(status, HTTPStatus.BAD_REQUEST)
+        self.assertEqual(response["error"], "INVALID_REQUEST")
+
     def test_metrics_expose_request_and_validation_counts(self) -> None:
         status, metrics = self.request("GET", "/metrics")
         self.assertEqual(status, HTTPStatus.OK)

@@ -59,6 +59,8 @@ The test suite includes CLI/domain coverage and HTTP integration tests. CI runs 
 
 Developer tools are pinned in `requirements-dev.txt` and resolved in `uv.lock`. `make check` runs lockfile verification, Ruff, mypy, the tests, and compilation; CI verifies the lockfile, runs the same lint and type checks, audits dependencies, validates Compose, builds the container, and enforces the coverage gate. Scheduled security workflows run secret scanning, dependency review, and CodeQL analysis.
 
+HTTP request envelopes are validated with Pydantic. The service uses standard-library logging and supports optional Sentry error tracking without requiring credentials; see [docs/configuration.md](docs/configuration.md). The IaC workflow runs Checkov policy scanning and an ephemeral Terraform apply, readiness check, and destroy cycle.
+
 ## Security and limits
 
 Dataset Preflight reads local files only and does not execute formulas or interpret cell contents. It is intentionally CSV-focused: it does not claim to validate encodings beyond Python's CSV reader, infer a schema, or replace business-level reconciliation. Keep contracts under code review and treat validation reports as potentially sensitive because they can include source values.

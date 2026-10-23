@@ -15,7 +15,9 @@ from .validator import CsvReadError, validate_csv
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="dataset-preflight", description="Validate CSV files against explicit data contracts.")
+    parser = argparse.ArgumentParser(
+        prog="dataset-preflight", description="Validate CSV files against explicit data contracts."
+    )
     subparsers = parser.add_subparsers(dest="command", required=True)
     validate = subparsers.add_parser("validate", help="validate a CSV file")
     validate.add_argument("csv", type=Path)

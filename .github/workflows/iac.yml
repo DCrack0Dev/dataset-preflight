@@ -25,3 +25,27 @@ jobs:
         run: terraform validate
       - name: Check plan shape
         run: terraform plan -input=false -refresh=false -out=tfplan
+      - name: Scan Terraform policies
+        run: uvx --from checkov==3.2.506 checkov -d . --framework terraform --quiet --compact
+
+  deploy-smoke:
+    if: github.event_name != 'pull_request'
+    needs: terraform
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/docker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - name: Initialize providers
+        run: terraform init -backend=false -lockfile=readonly
+      - name: Apply to ephemeral Docker host
+        run: terraform apply -input=false -auto-approve
+      - name: Check readiness endpoint
+        run: curl --fail --retry 10 --retry-delay 2 http://127.0.0.1:8080/health/ready
+      - name: Destroy ephemeral deployment
+        if: always()
+        run: terraform destroy -input=false -auto-approve

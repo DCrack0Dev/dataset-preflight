@@ -5,6 +5,8 @@ COPY pyproject.toml README.md LICENSE ./
 COPY src ./src
 COPY examples ./examples
 
+RUN python -m pip install --no-cache-dir .
+
 ENV PYTHONPATH=/app/src
 EXPOSE 8080
 

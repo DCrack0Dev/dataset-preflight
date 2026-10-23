@@ -51,7 +51,15 @@ def validate_csv(path: Path, contract: DatasetContract) -> ValidationReport:
                 _validate_value(issues, row_number, value, column)
                 if column.unique and value not in (None, ""):
                     if value in seen_values[column.name]:
-                        issues.append(Issue("DUPLICATE_VALUE", f"value is not unique in {column.name!r}", row_number, column.name, value))
+                        issues.append(
+                            Issue(
+                                "DUPLICATE_VALUE",
+                                f"value is not unique in {column.name!r}",
+                                row_number,
+                                column.name,
+                                value,
+                            )
+                        )
                     seen_values[column.name].add(value)
 
     return ValidationReport(contract.name, str(path), rows, tuple(issues))
@@ -64,15 +72,27 @@ def _validate_value(issues: list[Issue], row: int, value: str | None, column: Co
         return
     value = value.strip()
     if column.allowed and value not in column.allowed:
-        issues.append(Issue("VALUE_NOT_ALLOWED", f"value must be one of {list(column.allowed)!r}", row, column.name, value))
+        issues.append(
+            Issue("VALUE_NOT_ALLOWED", f"value must be one of {list(column.allowed)!r}", row, column.name, value)
+        )
     try:
         parsed = _parse_type(value, column.type)
     except ValueError as exc:
         issues.append(Issue("INVALID_TYPE", str(exc), row, column.name, value))
         return
-    if column.minimum is not None and isinstance(parsed, (int, float)) and not isinstance(parsed, bool) and parsed < column.minimum:
+    if (
+        column.minimum is not None
+        and isinstance(parsed, (int, float))
+        and not isinstance(parsed, bool)
+        and parsed < column.minimum
+    ):
         issues.append(Issue("BELOW_MINIMUM", f"value must be at least {column.minimum:g}", row, column.name, value))
-    if column.maximum is not None and isinstance(parsed, (int, float)) and not isinstance(parsed, bool) and parsed > column.maximum:
+    if (
+        column.maximum is not None
+        and isinstance(parsed, (int, float))
+        and not isinstance(parsed, bool)
+        and parsed > column.maximum
+    ):
         issues.append(Issue("ABOVE_MAXIMUM", f"value must be at most {column.maximum:g}", row, column.name, value))
 
 

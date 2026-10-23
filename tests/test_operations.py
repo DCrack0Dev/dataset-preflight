@@ -17,7 +17,7 @@ class OperationsArtifactTests(unittest.TestCase):
     def test_dockerfile_uses_non_root_runtime(self) -> None:
         dockerfile = (ROOT / "Dockerfile").read_text(encoding="utf-8")
         self.assertIn("USER nobody", dockerfile)
-        self.assertIn('EXPOSE 8080', dockerfile)
+        self.assertIn("EXPOSE 8080", dockerfile)
 
     def test_openapi_document_has_expected_paths(self) -> None:
         document = json.loads((ROOT / "docs/openapi.json").read_text(encoding="utf-8"))

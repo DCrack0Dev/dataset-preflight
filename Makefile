@@ -7,6 +7,7 @@ test:
 
 lint:
 	ruff check src tests
+	ruff format --check src tests
 
 types:
 	mypy src
@@ -18,6 +19,7 @@ infra:
 	terraform -chdir=infra/docker fmt -check -recursive
 	terraform -chdir=infra/docker init -backend=false -lockfile=readonly
 	terraform -chdir=infra/docker validate
+	uvx --from checkov==3.2.506 checkov -d infra/docker --framework terraform --quiet --compact
 
 compile:
 	PYTHONPATH=src $(PYTHON) -m compileall -q src tests

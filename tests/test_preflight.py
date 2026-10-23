@@ -26,9 +26,17 @@ CONTRACT = {
 class ContractTests(unittest.TestCase):
     def test_rejects_duplicate_columns_and_invalid_bounds(self) -> None:
         with self.assertRaisesRegex(ContractError, "duplicates"):
-            parse_contract({"name": "x", "version": 1, "columns": [{"name": "id", "type": "string"}, {"name": "id", "type": "string"}]})
+            parse_contract(
+                {
+                    "name": "x",
+                    "version": 1,
+                    "columns": [{"name": "id", "type": "string"}, {"name": "id", "type": "string"}],
+                }
+            )
         with self.assertRaisesRegex(ContractError, "cannot exceed"):
-            parse_contract({"name": "x", "version": 1, "columns": [{"name": "amount", "type": "number", "min": 2, "max": 1}]})
+            parse_contract(
+                {"name": "x", "version": 1, "columns": [{"name": "amount", "type": "number", "min": 2, "max": 1}]}
+            )
 
     def test_rejects_invalid_top_level_and_column_options(self) -> None:
         for raw, message in (
@@ -64,10 +72,19 @@ class ValidationTests(unittest.TestCase):
             report = validate_csv(path, parse_contract(CONTRACT))
         self.assertFalse(report.valid)
         self.assertEqual(report.rows, 2)
-        self.assertEqual([issue.code for issue in report.issues], ["UNEXPECTED_COLUMN", "BELOW_MINIMUM", "VALUE_NOT_ALLOWED", "DUPLICATE_VALUE", "NULL_NOT_ALLOWED"])
+        self.assertEqual(
+            [issue.code for issue in report.issues],
+            ["UNEXPECTED_COLUMN", "BELOW_MINIMUM", "VALUE_NOT_ALLOWED", "DUPLICATE_VALUE", "NULL_NOT_ALLOWED"],
+        )
 
     def test_validates_types_and_accepts_empty_nullable_values(self) -> None:
-        contract = parse_contract({"name": "events", "version": 1, "columns": [{"name": "count", "type": "integer"}, {"name": "note", "type": "string"}]})
+        contract = parse_contract(
+            {
+                "name": "events",
+                "version": 1,
+                "columns": [{"name": "count", "type": "integer"}, {"name": "note", "type": "string"}],
+            }
+        )
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "events.csv"
             path.write_text("count,note\n3,\n", encoding="utf-8")
@@ -75,12 +92,18 @@ class ValidationTests(unittest.TestCase):
         self.assertTrue(report.valid)
 
     def test_reports_invalid_boolean_date_integer_and_non_finite_number(self) -> None:
-        contract = parse_contract({"name": "mixed", "version": 1, "columns": [
-            {"name": "count", "type": "integer"},
-            {"name": "active", "type": "boolean"},
-            {"name": "day", "type": "date"},
-            {"name": "amount", "type": "number"},
-        ]})
+        contract = parse_contract(
+            {
+                "name": "mixed",
+                "version": 1,
+                "columns": [
+                    {"name": "count", "type": "integer"},
+                    {"name": "active", "type": "boolean"},
+                    {"name": "day", "type": "date"},
+                    {"name": "amount", "type": "number"},
+                ],
+            }
+        )
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "mixed.csv"
             path.write_text("count,active,day,amount\nnot-an-int,yes,not-a-date,nan\n", encoding="utf-8")
@@ -91,9 +114,22 @@ class ValidationTests(unittest.TestCase):
 class DiffTests(unittest.TestCase):
     def test_classifies_breaking_and_non_breaking_changes(self) -> None:
         before = parse_contract(CONTRACT)
-        after = parse_contract({**CONTRACT, "version": 2, "columns": [{"name": "id", "type": "string", "nullable": False, "unique": True}, {"name": "amount", "type": "integer", "nullable": False, "min": 0}, {"name": "region", "type": "string"}]})
+        after = parse_contract(
+            {
+                **CONTRACT,
+                "version": 2,
+                "columns": [
+                    {"name": "id", "type": "string", "nullable": False, "unique": True},
+                    {"name": "amount", "type": "integer", "nullable": False, "min": 0},
+                    {"name": "region", "type": "string"},
+                ],
+            }
+        )
         changes = compare_contracts(before, after)
-        self.assertEqual([(change.kind, change.column) for change in changes], [("breaking", "amount"), ("added", "region"), ("removed", "status")])
+        self.assertEqual(
+            [(change.kind, change.column) for change in changes],
+            [("breaking", "amount"), ("added", "region"), ("removed", "status")],
+        )
 
 
 class CliTests(unittest.TestCase):
@@ -113,7 +149,9 @@ class CliTests(unittest.TestCase):
             changed = root / "changed.json"
             dataset = root / "data.csv"
             contract.write_text(json.dumps(CONTRACT), encoding="utf-8")
-            changed.write_text(json.dumps({**CONTRACT, "version": 2, "columns": [{"name": "id", "type": "integer"}]}), encoding="utf-8")
+            changed.write_text(
+                json.dumps({**CONTRACT, "version": 2, "columns": [{"name": "id", "type": "integer"}]}), encoding="utf-8"
+            )
             dataset.write_text("id,amount,status\nA,2,paid\n", encoding="utf-8")
             output = io.StringIO()
             with contextlib.redirect_stdout(output):

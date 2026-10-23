@@ -13,6 +13,8 @@ from typing import Any
 
 from .audit import AuditLog
 from .contract import ContractError, parse_contract
+from .observability import ErrorTracker, configure_error_tracking, configure_logging, logger
+from .schema import ValidationRequest
 from .validator import CsvReadError, validate_csv
 
 MAX_REQUEST_BYTES = 1_000_000
@@ -58,10 +60,16 @@ class PreflightHTTPServer(ThreadingHTTPServer):
 
     daemon_threads = True
 
-    def __init__(self, address: tuple[str, int], audit_path: Path | None = None) -> None:
+    def __init__(
+        self,
+        address: tuple[str, int],
+        audit_path: Path | None = None,
+        error_tracker: ErrorTracker | None = None,
+    ) -> None:
         super().__init__(address, PreflightRequestHandler)
         self.metrics = Metrics()
         self.audit = AuditLog(audit_path)
+        self.error_tracker = error_tracker or configure_error_tracking()
 
 
 class PreflightRequestHandler(BaseHTTPRequestHandler):
@@ -81,25 +89,28 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:
         self.server.metrics.record_request()
+        logger.info("request received method=POST path=%s client=%s", self.path, self.client_address[0])
         if self.path != "/v1/validate":
             self._send_json(HTTPStatus.NOT_FOUND, {"error": "NOT_FOUND"})
             return
         try:
-            payload = self._read_json()
-            csv_text = payload.get("csv")
-            if not isinstance(csv_text, str) or not csv_text:
-                raise ValueError("csv must be a non-empty string")
-            contract = parse_contract(payload.get("contract"), source="request.contract")
+            request = ValidationRequest.model_validate(self._read_json())
+            contract = parse_contract(request.contract, source="request.contract")
             with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="", suffix=".csv") as csv_file:
-                csv_file.write(csv_text)
+                csv_file.write(request.csv)
                 csv_file.flush()
                 report = replace(validate_csv(Path(csv_file.name), contract), source="<request>")
             self.server.metrics.record_validation(report.valid)
             self.server.audit.record("validation", valid=report.valid, issues=len(report.issues), rows=report.rows)
+            logger.info(
+                "validation completed valid=%s rows=%d issues=%d", report.valid, report.rows, len(report.issues)
+            )
             self._send_json(HTTPStatus.OK if report.valid else HTTPStatus.UNPROCESSABLE_ENTITY, report.as_dict())
-        except (ContractError, CsvReadError, ValueError, json.JSONDecodeError) as exc:
+        except (ContractError, CsvReadError, ValueError, TypeError, json.JSONDecodeError) as exc:
             self.server.metrics.record_invalid_request()
             self.server.audit.record("invalid_request", error=str(exc))
+            self.server.error_tracker.capture_exception(exc)
+            logger.warning("invalid validation request: %s", exc)
             self._send_json(HTTPStatus.BAD_REQUEST, {"error": "INVALID_REQUEST", "message": str(exc)})
 
     def _read_json(self) -> dict[str, Any]:
@@ -135,21 +146,30 @@ class PreflightRequestHandler(BaseHTTPRequestHandler):
         self.wfile.write(encoded)
 
     def log_message(self, format: str, *args: object) -> None:
-        return
+        logger.info("http access %s", format % args)
 
 
-def create_server(host: str = "127.0.0.1", port: int = 8080, audit_path: Path | None = None) -> PreflightHTTPServer:
-    return PreflightHTTPServer((host, port), audit_path)
+def create_server(
+    host: str = "127.0.0.1",
+    port: int = 8080,
+    audit_path: Path | None = None,
+    error_tracker: ErrorTracker | None = None,
+) -> PreflightHTTPServer:
+    return PreflightHTTPServer((host, port), audit_path, error_tracker)
 
 
 def serve(host: str = "0.0.0.0", port: int = 8080, audit_path: Path | None = None) -> None:
+    configure_logging()
     server = create_server(host, port, audit_path)
+    logger.info("service starting host=%s port=%d", host, port)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
+        logger.info("service shutdown requested")
         pass
     finally:
         server.server_close()
+        logger.info("service stopped")
 
 
 def _openapi_document() -> dict[str, Any]:

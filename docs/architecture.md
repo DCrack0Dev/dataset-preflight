@@ -20,3 +20,5 @@ The quality boundary is intentionally layered: Ruff catches syntax and maintaina
 The `infra/docker` Terraform module is the deployment boundary for hosts that prefer declarative container management over Compose. It owns image build, port mapping, restart behavior, health checks, read-only storage, ephemeral `/tmp`, non-root execution, and the provider lockfile; it does not require cloud credentials or remote state.
 
 The complete configuration inventory is maintained in [configuration.md](configuration.md). It distinguishes CLI runtime flags, Terraform `TF_VAR_*` inputs, Docker-provider connection variables, and CI-only variables so environment configuration is not implied or undocumented.
+
+The HTTP boundary uses Pydantic for request-envelope validation before the domain contract parser runs. Standard logging is configured at service startup, with optional Sentry capture behind an explicit DSN. Infrastructure changes are policy-scanned with Checkov and exercised through an ephemeral Terraform apply/health-check/destroy job on protected branch pushes.

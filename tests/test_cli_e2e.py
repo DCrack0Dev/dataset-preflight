@@ -14,7 +14,16 @@ class CliEndToEndTests(unittest.TestCase):
     def test_module_cli_validates_example_from_repository_root(self) -> None:
         environment = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
         result = subprocess.run(
-            [sys.executable, "-m", "dataset_preflight", "validate", "examples/orders.csv", "examples/orders.contract.json", "--format", "json"],
+            [
+                sys.executable,
+                "-m",
+                "dataset_preflight",
+                "validate",
+                "examples/orders.csv",
+                "examples/orders.contract.json",
+                "--format",
+                "json",
+            ],
             cwd=ROOT,
             env=environment,
             check=False,
@@ -27,7 +36,14 @@ class CliEndToEndTests(unittest.TestCase):
     def test_module_cli_prints_human_readable_success_report(self) -> None:
         environment = {**os.environ, "PYTHONPATH": str(ROOT / "src")}
         result = subprocess.run(
-            [sys.executable, "-m", "dataset_preflight", "validate", "examples/orders.csv", "examples/orders.contract.json"],
+            [
+                sys.executable,
+                "-m",
+                "dataset_preflight",
+                "validate",
+                "examples/orders.csv",
+                "examples/orders.contract.json",
+            ],
             cwd=ROOT,
             env=environment,
             check=False,

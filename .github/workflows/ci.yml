@@ -29,12 +29,18 @@ jobs:
       - run: uv lock --check
       - name: Install coverage tool
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
+      - name: Install application package
+        run: python -m pip install --disable-pip-version-check .
       - name: Lint source and tests
         run: ruff check src tests
+      - name: Check formatting
+        run: ruff format --check src tests
       - name: Check static types
         run: mypy src
       - name: Audit pinned development dependencies
         run: pip-audit -r requirements-dev.txt
+      - name: Audit installed runtime dependencies
+        run: pip-audit
       - name: Run tests
         run: python -m unittest discover -s tests -v
       - name: Enforce coverage gate
