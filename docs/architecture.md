@@ -18,3 +18,5 @@ Development tools are represented in both the human-readable requirements file a
 The quality boundary is intentionally layered: Ruff catches syntax and maintainability patterns, mypy checks source annotations and numeric narrowing, unittest exercises behavior, coverage enforces breadth, pip-audit checks pinned tools, and CodeQL/Gitleaks run in GitHub security workflows.
 
 The `infra/docker` Terraform module is the deployment boundary for hosts that prefer declarative container management over Compose. It owns image build, port mapping, restart behavior, health checks, read-only storage, ephemeral `/tmp`, non-root execution, and the provider lockfile; it does not require cloud credentials or remote state.
+
+The complete configuration inventory is maintained in [configuration.md](configuration.md). It distinguishes CLI runtime flags, Terraform `TF_VAR_*` inputs, Docker-provider connection variables, and CI-only variables so environment configuration is not implied or undocumented.

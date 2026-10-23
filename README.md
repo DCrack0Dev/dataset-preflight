@@ -45,7 +45,7 @@ A contract is deliberately plain JSON:
 }
 ```
 
-See [docs/contract.md](docs/contract.md) for the full contract format, [docs/http-api.md](docs/http-api.md) for the service contract, and [docs/architecture.md](docs/architecture.md) for module boundaries.
+See [docs/contract.md](docs/contract.md) for the full contract format, [docs/http-api.md](docs/http-api.md) for the service contract, [docs/configuration.md](docs/configuration.md) for the complete environment and Terraform variable inventory, and [docs/architecture.md](docs/architecture.md) for module boundaries.
 
 ## Development
 

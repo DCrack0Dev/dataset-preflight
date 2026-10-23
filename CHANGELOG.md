@@ -12,6 +12,7 @@
 - Added a hash-resolved `uv.lock`, scheduled secret/dependency scanning, infrastructure artifact tests, and a Docker build context policy.
 - Added mypy static type checking and scheduled CodeQL analysis for Python and GitHub Actions.
 - Added a provider-locked Terraform Docker module with format, init, validate, and plan checks in CI.
+- Added a complete configuration reference covering runtime flags, Terraform inputs, Docker provider variables, and CI-only variables.
 
 ## 0.1.0 - 2026-10-22
 
