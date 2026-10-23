@@ -70,9 +70,9 @@ def _validate_value(issues: list[Issue], row: int, value: str | None, column: Co
     except ValueError as exc:
         issues.append(Issue("INVALID_TYPE", str(exc), row, column.name, value))
         return
-    if column.minimum is not None and parsed < column.minimum:
+    if column.minimum is not None and isinstance(parsed, (int, float)) and not isinstance(parsed, bool) and parsed < column.minimum:
         issues.append(Issue("BELOW_MINIMUM", f"value must be at least {column.minimum:g}", row, column.name, value))
-    if column.maximum is not None and parsed > column.maximum:
+    if column.maximum is not None and isinstance(parsed, (int, float)) and not isinstance(parsed, bool) and parsed > column.maximum:
         issues.append(Issue("ABOVE_MAXIMUM", f"value must be at most {column.maximum:g}", row, column.name, value))
 
 
@@ -89,12 +89,12 @@ def _parse_type(value: str, expected: str) -> str | int | float | bool | date:
         return parsed
     if expected == "number":
         try:
-            parsed = float(value)
+            numeric_value = float(value)
         except ValueError as exc:
             raise ValueError("value must be a number") from exc
-        if not math.isfinite(parsed):
+        if not math.isfinite(numeric_value):
             raise ValueError("value must be a finite number")
-        return parsed
+        return numeric_value
     if expected == "boolean":
         if value.lower() not in {"true", "false"}:
             raise ValueError("value must be true or false")

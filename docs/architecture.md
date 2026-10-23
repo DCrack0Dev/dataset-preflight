@@ -14,3 +14,5 @@ The standard library is sufficient at runtime. This keeps the validation gate po
 The Docker image and Compose definition are deployment wrappers, not alternate application logic. The image runs as an unprivileged user, exposes port 8080, and has an unauthenticated readiness endpoint suitable for container health checks. The service is intentionally stateless; durable reports belong in the caller's pipeline storage.
 
 Development tools are represented in both the human-readable requirements file and the hash-resolved `uv.lock`. Operations artifact tests check the security-relevant container invariants (non-root execution, read-only Compose filesystem, and ephemeral temporary storage) so those deployment assumptions cannot silently drift.
+
+The quality boundary is intentionally layered: Ruff catches syntax and maintainability patterns, mypy checks source annotations and numeric narrowing, unittest exercises behavior, coverage enforces breadth, pip-audit checks pinned tools, and CodeQL/Gitleaks run in GitHub security workflows.

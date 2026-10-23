@@ -9,6 +9,7 @@ from pathlib import Path
 
 from .contract import ContractError, load_contract
 from .diff import compare_contracts
+from .report import ValidationReport
 from .service import serve
 from .validator import CsvReadError, validate_csv
 
@@ -56,7 +57,7 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
 
-def _print_report(report) -> None:
+def _print_report(report: ValidationReport) -> None:
     status = "PASS" if report.valid else "FAIL"
     print(f"{status}: {report.source} against {report.contract} ({report.rows} rows)")
     for issue in report.issues:

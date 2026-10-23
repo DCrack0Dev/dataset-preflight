@@ -31,6 +31,8 @@ jobs:
         run: python -m pip install --disable-pip-version-check -r requirements-dev.txt
       - name: Lint source and tests
         run: ruff check src tests
+      - name: Check static types
+        run: mypy src
       - name: Audit pinned development dependencies
         run: pip-audit -r requirements-dev.txt
       - name: Run tests
@@ -50,3 +52,5 @@ jobs:
         run: docker build --tag dataset-preflight:ci .
         env:
           PYTHONPATH: src
+      - name: Validate Compose configuration
+        run: docker compose config --quiet

@@ -10,6 +10,7 @@
 - Added HTTP API documentation, end-to-end CLI checks, Dependabot, CODEOWNERS, and pinned dependency auditing.
 - Added optional metadata-only audit logging, an OpenAPI endpoint, and no-store security response headers.
 - Added a hash-resolved `uv.lock`, scheduled secret/dependency scanning, infrastructure artifact tests, and a Docker build context policy.
+- Added mypy static type checking and scheduled CodeQL analysis for Python and GitHub Actions.
 
 ## 0.1.0 - 2026-10-22
 
