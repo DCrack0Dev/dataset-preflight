@@ -1,0 +1,27 @@
+name: Infrastructure
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/docker
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.9.8"
+      - name: Check formatting
+        run: terraform fmt -check -recursive
+      - name: Initialize providers
+        run: terraform init -backend=false -lockfile=readonly
+      - name: Validate module
+        run: terraform validate
+      - name: Check plan shape
+        run: terraform plan -input=false -refresh=false -out=tfplan

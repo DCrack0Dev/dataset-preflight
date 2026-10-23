@@ -11,6 +11,7 @@
 - Added optional metadata-only audit logging, an OpenAPI endpoint, and no-store security response headers.
 - Added a hash-resolved `uv.lock`, scheduled secret/dependency scanning, infrastructure artifact tests, and a Docker build context policy.
 - Added mypy static type checking and scheduled CodeQL analysis for Python and GitHub Actions.
+- Added a provider-locked Terraform Docker module with format, init, validate, and plan checks in CI.
 
 ## 0.1.0 - 2026-10-22
 

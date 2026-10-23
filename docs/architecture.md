@@ -16,3 +16,5 @@ The Docker image and Compose definition are deployment wrappers, not alternate a
 Development tools are represented in both the human-readable requirements file and the hash-resolved `uv.lock`. Operations artifact tests check the security-relevant container invariants (non-root execution, read-only Compose filesystem, and ephemeral temporary storage) so those deployment assumptions cannot silently drift.
 
 The quality boundary is intentionally layered: Ruff catches syntax and maintainability patterns, mypy checks source annotations and numeric narrowing, unittest exercises behavior, coverage enforces breadth, pip-audit checks pinned tools, and CodeQL/Gitleaks run in GitHub security workflows.
+
+The `infra/docker` Terraform module is the deployment boundary for hosts that prefer declarative container management over Compose. It owns image build, port mapping, restart behavior, health checks, read-only storage, ephemeral `/tmp`, non-root execution, and the provider lockfile; it does not require cloud credentials or remote state.

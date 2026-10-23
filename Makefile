@@ -1,4 +1,4 @@
-.PHONY: test lint types compile coverage check example
+.PHONY: test lint types lock infra compile coverage check example
 
 PYTHON ?= python3
 
@@ -13,6 +13,11 @@ types:
 
 lock:
 	uv lock --check
+
+infra:
+	terraform -chdir=infra/docker fmt -check -recursive
+	terraform -chdir=infra/docker init -backend=false -lockfile=readonly
+	terraform -chdir=infra/docker validate
 
 compile:
 	PYTHONPATH=src $(PYTHON) -m compileall -q src tests

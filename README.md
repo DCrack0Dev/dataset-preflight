@@ -28,6 +28,8 @@ The HTTP service accepts `POST /v1/validate` with a JSON body containing `csv` a
 
 For isolated local execution, use `docker compose up --build`. The container runs as an unprivileged user with a read-only filesystem and includes a readiness health check. A reproducible Python Dev Container is also included.
 
+For Terraform-managed local Docker deployment, see [infra/docker/README.md](infra/docker/README.md). The module is formatted, provider-locked, validated, and planned in CI without applying infrastructure.
+
 A contract is deliberately plain JSON:
 
 ```json
